@@ -14,8 +14,6 @@ namespace lab7
     public partial class Form1 : Form
     {
         private Timer simulationTimer;
-        private Series seriesIncome;
-        private Series seriesCustomerNumbers;
         private Random random;
 
         public Form1()
