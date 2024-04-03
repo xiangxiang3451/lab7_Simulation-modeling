@@ -27,61 +27,70 @@ namespace lab7
         private void InitializeTimer()
         {
             simulationTimer = new Timer();
-            simulationTimer.Interval = 1000; // Set interval timer dalam milidetik (misalnya setiap 1 detik)
+            simulationTimer.Interval = 1000; // Set timer interval in milliseconds (e.g., every 1 second)
             simulationTimer.Tick += SimulationTimer_Tick;
         }
-
         private void InitializeChart()
         {
-
+            // Initialize the chart
         }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            // Mulai atau lanjutkan timer saat tombol "Start Simulation" ditekan
             simulationTimer.Start();
         }
 
         private void SimulationTimer_Tick(object sender, EventArgs e)
         {
-            // Mendapatkan nilai acak untuk simulasi
-            double goodServer = random.NextDouble() * 10; // Misalnya, nilai acak antara 0 dan 10
-            int purchase = random.Next(100); // Misalnya, nilai acak antara 0 dan 100
+            double goodServer = random.NextDouble() * 10; // Good server
+            int purchase = random.Next(100); // Purchase
+            double foodQuality = random.NextDouble(); // Food quality (random value between 0 and 1)
+            double foodStorage = random.NextDouble(); // Food storage (random value between 0 and 1)
 
-            // Memanggil fungsi untuk menghitung hasil simulasi
-            double income = CalculateIncome(goodServer, purchase);
-            int customerNumbers = CalculateCustomerNumbers(goodServer, purchase);
+            // Call functions to calculate simulation results
+            double income = CalculateIncome(goodServer, purchase, foodQuality, foodStorage);
+            int customerNumbers = CalculateCustomerNumbers(goodServer, purchase, foodQuality, foodStorage);
 
-            // Menambahkan data baru ke series
             chart1.Series[0].Points.AddY(income);
             chart1.Series[1].Points.AddY(customerNumbers);
 
-            // Batasi jumlah data pada series agar tidak terlalu banyak
-            const int maxDataPoints = 10; // Misalnya, maksimum 10 data points
+            const int maxDataPoints = 10; // Maximum of 10 data points
             while (chart1.Series[0].Points.Count > maxDataPoints)
             {
                 chart1.Series[0].Points.RemoveAt(0);
                 chart1.Series[1].Points.RemoveAt(0);
             }
 
-            // Perbarui chart
+            // Update the chart
             chart1.Invalidate();
         }
 
-        // Fungsi untuk menghitung income
-        private double CalculateIncome(double goodServer, int purchase)
+        private double CalculateIncome(double goodServer, int purchase, double foodQuality, double foodStorage)
         {
-            // Contoh rumus sederhana
-            return goodServer * purchase * 10;
+
+            double baseIncome = goodServer * purchase * foodQuality * foodStorage * 10;
+
+            // Adjustment based on food storage
+            double storageAdjustment = 1 + (1 - foodStorage) * 0.2; // Income decreases proportionally with less food storage
+            double income = baseIncome * storageAdjustment;
+
+            // Adjustment based on purchase
+            double purchaseAdjustment = 1 + Math.Log(purchase + 1); // Income increases proportionally with higher purchase (logarithmic growth)
+            income *= purchaseAdjustment;
+
+            return income;
         }
 
-        // Fungsi untuk menghitung jumlah pelanggan
-        private int CalculateCustomerNumbers(double goodServer, int purchase)
+        private int CalculateCustomerNumbers(double goodServer, int purchase, double foodQuality, double foodStorage)
         {
-            // Contoh rumus sederhana
-            return (int)(goodServer * purchase * 0.5);
+            // Formula to calculate complex customer numbers based on good server, purchase, food quality, and food storage
+            int baseCustomerNumbers = (int)(goodServer * purchase * foodQuality * foodStorage * 0.5);
+
+            // Adjustment based on food quality
+            double qualityAdjustment = 1 + (foodQuality - 0.5) * 2; // Customer numbers increase proportionally with higher food quality
+            int customerNumbers = (int)(baseCustomerNumbers * qualityAdjustment);
+
+            return customerNumbers;
         }
-
-
     }
 }
